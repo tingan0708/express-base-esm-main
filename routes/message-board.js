@@ -34,27 +34,14 @@ const getListData = async (req) => {
     }
 
     const sql2 = `SELECT * FROM comments ORDER BY c_id DESC LIMIT ?, ?`
-    comments = await db.query(sql2, [(page - 1) * perPage, perPage])
+    const [rows] = await db.query(sql2, [(page - 1) * perPage, perPage])
 
-    comments.forEach((comment) => {
-      if (comment.created_at) {
-        comment.created_at = new Date(comment.created_at)
-        if (!isNaN(comment.created_at.getTime())) {
-          comment.created_at = comment.created_at.toISOString().slice(0, 10)
-        } else {
-          comment.created_at = 'Invalid Date'
-        }
-      } else {
-        comment.created_at = 'Invalid Date'
-      }
-    })
-
-    comments.forEach((r) => {
-      // "js 的 date" 類型轉換日期格式的字串
-      if (r.date) {
-        r.date = moment(r.date).format(dateFormat)
-      }
-    })
+    comments = rows.map((comment) => ({
+      ...comment,
+      created_at: comment.created_at
+        ? moment(comment.created_at).format(dateFormat)
+        : 'Invalid Date',
+    }))
   }
 
   return {
@@ -70,7 +57,7 @@ const getListData = async (req) => {
 
 router.get('/', async (req, res) => {
   res.locals.pageName = 'am-list'
-  const result = await getListData(req, res)
+  const result = await getListData(req)
 
   if (result.redirect) {
     return res.redirect(result.redirect)
@@ -83,7 +70,7 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/api', async (req, res) => {
-  const result = await getListData(req, res)
+  const result = await getListData(req)
   res.json(result)
 })
 
@@ -111,8 +98,7 @@ router.post('/add', upload.none(), async (req, res) => {
     output.success = !!result.affectedRows
   } catch (ex) {
     console.error('SQL Error:', ex) // 紀錄錯誤
-    console.error('詳細錯誤:', ex.message) // 打印詳細錯誤信息
-    output.error = ex // 開發時期除錯
+    output.error = ex.message // 打印詳細錯誤信息
   }
   res.json(output)
 })
