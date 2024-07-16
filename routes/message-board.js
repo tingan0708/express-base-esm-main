@@ -7,61 +7,27 @@ const dateFormat = 'YYYY-MM-DD'
 const router = express.Router()
 const upload = multer() // 初始化 multer
 
-const getListData = async (req) => {
-  const perPage = 20 // 每頁最多有幾筆
-  let page = +req.query.page || 1
-  if (page < 1) {
-    return {
-      success: false,
-      redirect: `?page=1`,
-      info: 'page 值太小', // 轉向
-    }
-  }
+const getAllComments = async () => {
+  const sql = `SELECT * FROM comments ORDER BY c_id DESC LIMIT 10 `
+  const [rows] = await db.query(sql)
 
-  const sql = `SELECT COUNT(*) totalRows FROM comments`
-  const [[{ totalRows }]] = await db.query(sql) // 取得總筆數，再解構
-
-  let totalPages = 0 // 總頁數，預設值為 0
-  let comments = [] // 分頁資料
-  if (totalRows > 0) {
-    totalPages = Math.ceil(totalRows / perPage)
-    if (page > totalPages) {
-      return {
-        success: false,
-        redirect: `?page=${totalPages}`,
-        info: 'page 值太大', // 轉向
-      }
-    }
-
-    const sql2 = `SELECT * FROM comments ORDER BY c_id DESC LIMIT ?, ?`
-    const [rows] = await db.query(sql2, [(page - 1) * perPage, perPage])
-
-    comments = rows.map((comment) => ({
-      ...comment,
-      created_at: comment.created_at
-        ? moment(comment.created_at).format(dateFormat)
-        : 'Invalid Date',
-    }))
-  }
+  const comments = rows.map((comment) => ({
+    ...comment,
+    created_at: comment.created_at
+      ? moment(comment.created_at).format(dateFormat)
+      : 'Invalid Date',
+  }))
 
   return {
     success: true,
-    totalRows,
-    totalPages,
-    page,
-    perPage,
     comments,
-    qs: req.query,
   }
 }
 
 router.get('/', async (req, res) => {
   res.locals.pageName = 'am-list'
-  const result = await getListData(req)
+  const result = await getAllComments()
 
-  if (result.redirect) {
-    return res.redirect(result.redirect)
-  }
   if (req.session && req.session.admin) {
     res.render('address-book/list', result)
   } else {
@@ -70,7 +36,7 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/api', async (req, res) => {
-  const result = await getListData(req)
+  const result = await getAllComments()
   res.json(result)
 })
 
