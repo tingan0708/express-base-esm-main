@@ -56,6 +56,54 @@ export default async function (sequelize) {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      order_name1: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_phone1: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_zip1: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_county1: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_district1: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_address1: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_name2: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_phone2: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_zip2: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_county2: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_district2: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      order_address2: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
     },
     {
       tableName: 'purchase_order', //直接提供資料表名稱

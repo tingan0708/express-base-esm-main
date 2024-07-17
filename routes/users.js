@@ -10,7 +10,7 @@ import { getIdParam } from '#db-helpers/db-tool.js'
 // 資料庫使用
 import { Op } from 'sequelize'
 import sequelize from '#configs/db.js'
-const { User } = sequelize.models
+const { User, Purchase_Order } = sequelize.models
 
 // 驗証加密密碼字串用
 import { compareHash } from '#db-helpers/password-hash.js'
@@ -45,23 +45,36 @@ router.get('/', async function (req, res) {
 })
 
 // GET - 得到單筆資料(注意，有動態參數時要寫在GET區段最後面)
+// 新增 - - 獲取訂單資訊
 router.get('/:id', authenticate, async function (req, res) {
-  // 轉為數字
+  // 轉數字
   const id = getIdParam(req)
 
   // 檢查是否為授權會員，只有授權會員可以存取自己的資料
   if (req.user.id !== id) {
-    return res.json({ status: 'error', message: '存取會員資料失敗' })
+    return res.json({ status: 'error', message: '讀取會員資料失敗' })
   }
 
-  const user = await User.findByPk(id, {
-    raw: true, // 只需要資料表中資料
-  })
+  try {
+    // 查询用户信息，排除密码字段
+    const user = await User.findByPk(id, { raw: true })
 
-  // 不回傳密碼
-  delete user.password
+    // 查詢用戶訂單
+    const purchaseOrders = await Purchase_Order.findAll({
+      where: { user_id: id },
+      raw: true,
+    })
 
-  return res.json({ status: 'success', data: { user } })
+    // 刪掉用戶密碼字段
+    if (user) {
+      delete user.password
+    }
+
+    return res.json({ status: 'success', data: { user, purchaseOrders } })
+  } catch (error) {
+    console.error('Error fetching user data:', error)
+    return res.json({ status: 'error', message: '獲取資料出錯' })
+  }
 })
 
 // POST - 新增會員資料

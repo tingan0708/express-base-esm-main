@@ -32,7 +32,7 @@ export default async function (sequelize) {
         allowNull: true,
       },
       birth_date: {
-        type: DataTypes.DATEONLY, //只需要日期
+        type: DataTypes.DATEONLY, // 只需要日期
         allowNull: true,
       },
       sex: {
@@ -40,14 +40,6 @@ export default async function (sequelize) {
         allowNull: true,
       },
       phone: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      postcode: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      address: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -67,6 +59,56 @@ export default async function (sequelize) {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      // 收件者1資訊
+      name1: {
+        type: DataTypes.STRING, // 收件者姓名
+        allowNull: true,
+      },
+      phone1: {
+        type: DataTypes.STRING, // 收件者電話
+        allowNull: true,
+      },
+      zip1: {
+        type: DataTypes.STRING, // 郵遞區號
+        allowNull: true,
+      },
+      county1: {
+        type: DataTypes.STRING, // 縣/市
+        allowNull: true,
+      },
+      district1: {
+        type: DataTypes.STRING, // 地區
+        allowNull: true,
+      },
+      address1: {
+        type: DataTypes.STRING, // 地址
+        allowNull: true,
+      },
+      // 收件者2資訊
+      name2: {
+        type: DataTypes.STRING, // 收件者姓名
+        allowNull: true,
+      },
+      phone2: {
+        type: DataTypes.STRING, // 收件者電話
+        allowNull: true,
+      },
+      zip2: {
+        type: DataTypes.STRING, // 郵遞區號
+        allowNull: true,
+      },
+      county2: {
+        type: DataTypes.STRING, // 縣/市
+        allowNull: true,
+      },
+      district2: {
+        type: DataTypes.STRING, // 地區
+        allowNull: true,
+      },
+      address2: {
+        type: DataTypes.STRING, // 地址
+        allowNull: true,
+      },
     },
     {
       hooks: {
@@ -83,7 +125,7 @@ export default async function (sequelize) {
           }
         },
       },
-      tableName: 'user', //直接提供資料表名稱
+      tableName: 'user', // 直接提供資料表名稱
       timestamps: true, // 使用時間戳
       paranoid: false, // 軟性刪除
       underscored: true, // 所有自動建立欄位，使用snake_case命名
