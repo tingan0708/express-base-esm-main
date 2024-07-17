@@ -103,7 +103,7 @@ couponsRouter.get('/history/:id', async (req, res) => {
 
     const sql = `SELECT  user_id,\`name\`,coupons_sentDate,
 coupons_maxAge,coupons_sample_price,coupons_explain,
-car_id 
+used 
 FROM coupons 
 JOIN coupons_sample 
 ON coupons.cs_id =  coupons_sample.cs_id
@@ -154,7 +154,7 @@ couponsRouter.get('/historyCar/:id', async (req, res) => {
   try {
     await db.query(sql2, [currentDate])
 
-    const sql = `SELECT  user_id,\`name\`,coupons_sentDate,coupons_maxAge,coupons_sample_price,coupons_explain,car_id FROM coupons JOIN coupons_sample ON coupons.cs_id =  coupons_sample.cs_id JOIN \`user\`ON user_id = \`user\`.id WHERE user_id = ? AND coupons_maxAge > CURDATE()  AND (car_id IS NULL OR car_id = '') ORDER BY coupons_maxAge`
+    const sql = `SELECT  user_id,\`name\`,coupons_sentDate,coupons_maxAge,coupons_sample_price,coupons_explain,used FROM coupons JOIN coupons_sample ON coupons.cs_id =  coupons_sample.cs_id JOIN \`user\`ON user_id = \`user\`.id WHERE user_id = ? AND coupons_maxAge > CURDATE()  AND  used = 0 ORDER BY coupons_maxAge`
 
     const [rows] = await db.query(sql, [member_id])
 
@@ -181,26 +181,29 @@ couponsRouter.get('/historyCar/:id', async (req, res) => {
   res.json(output)
 })
 
-//折價卷-改 1.(不刪除)-過期時要修改狀態 -> 變成灰色不能點 -查詢時就要一起寫入狀態了!(好了) 2. 使用了所以要寫入訂單編號 -> 有訂單編號也要變成灰色不能點(say已用!!)
-//這裡不用給使用者畫面!!!只是改資料庫的部分所以修改好要跳轉回去查看頁
-couponsRouter.put('/edit/:m_id/:carNumber/:cs_id', async (req, res) => {
+//折價卷-改  使用了所以要寫入已使用
+//這裡不用給使用者畫面!!!只是改資料庫的部分
+couponsRouter.put('/edit/:id/', async (req, res) => {
   const output = {
     success: false,
     bodyData: req.body,
     result: null,
   }
 
-  // 假設 id 先從路徑取 ，之後再從  session 取得的會員ID
-  let m_id = +req.params.m_id || 0
-  // 從請求體中取得車牌號碼
-  const car_id = +req.body.carNumber || 0
-  //假設 cs_id 先從路徑取得  ->這裡的是看他有哪一款的折價卷(折價卷款式4種!!)
-  let cs_id = +req.params.cs_id || 0
+  // 從請求頭中獲取user_id和cs_id
+  let user_id = +req.headers['user_id'] || 0
+  let cs_id = +req.headers['cs_id'] || 0
+
+  // 輸出日誌來檢查獲取的參數
+  console.log(`user_id: ${user_id}, cs_id: ${cs_id}`)
 
   try {
-    // 更新優惠券的 car_id
-    const sql2 = `UPDATE coupons SET car_id = ? WHERE m_id = ? AND cs_id =? `
-    const [result] = await db.query(sql2, [car_id, m_id, cs_id])
+    // 更新優惠券的 used = 1
+    const sql2 = `UPDATE coupons SET used = 1 WHERE user_id = ? AND cs_id = ?`
+    const [result] = await db.query(sql2, [user_id, cs_id])
+
+    // 輸出日誌來檢查SQL查詢結果
+    console.log(`SQL結果: ${JSON.stringify(result)}`)
 
     output.result = result
     output.success = !!(result.affectedRows && result.changedRows)
