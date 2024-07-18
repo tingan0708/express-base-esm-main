@@ -154,7 +154,7 @@ couponsRouter.get('/historyCar/:id', async (req, res) => {
   try {
     await db.query(sql2, [currentDate])
 
-    const sql = `SELECT  user_id,\`name\`,coupons_sentDate,coupons_maxAge,coupons_sample_price,coupons_explain,used FROM coupons JOIN coupons_sample ON coupons.cs_id =  coupons_sample.cs_id JOIN \`user\`ON user_id = \`user\`.id WHERE user_id = ? AND coupons_maxAge > CURDATE()  AND  used = 0 ORDER BY coupons_maxAge`
+    const sql = `SELECT coupons_sample.cs_id,user_id,\`name\`,coupons_sentDate,coupons_maxAge,coupons_sample_price,coupons_explain,used FROM coupons JOIN coupons_sample ON coupons.cs_id =  coupons_sample.cs_id JOIN \`user\`ON user_id = \`user\`.id WHERE user_id = ? AND coupons_maxAge > CURDATE()  AND  used = 0 ORDER BY coupons_maxAge`
 
     const [rows] = await db.query(sql, [member_id])
 
