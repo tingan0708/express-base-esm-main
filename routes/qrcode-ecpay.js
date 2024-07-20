@@ -44,7 +44,8 @@ router.get('/payment', async (req, res, next) => {
   //二、輸入參數
   const TotalAmount = orderRecord.amount
   const TradeDesc = '商店線上付款'
-  const ItemName = '訂單編號' + orderRecord.id + '商品一批'
+  // const ItemName = '訂單編號' + orderRecord.id + '商品一批'
+  const ItemName = '牡丹樓餐飲消費金額'
 
   const ChoosePayment = 'ALL'
 
@@ -144,36 +145,25 @@ router.get('/payment', async (req, res, next) => {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>全方位金流-測試</title>
+    <title>即將跳轉付款頁面</title>
 </head>
 <body>
-    <form method="post" action="${APIURL}">
+    <form method="post" action="${APIURL}" style="visibility:hidden">
 ${inputs}
-<input type ="submit" value = "送出參數">
+<input type ="submit" value = "送出參數" id="auto-submit">
     </form>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function(){
+          document.querySelector('#auto-submit').click();
+        },5000);
+      })
+    </script>
 </body>
 </html>
 `
   //res.json({ htmlContent })
   res.send(htmlContent)
-
-  // const htmlContent = `
-  // <!DOCTYPE html>
-  // <html>
-  // <head>
-  //     <title>全方位金流測試</title>
-  // </head>
-  // <body>
-  //     <form method="post" action="${APIURL}">
-  // ${inputs}
-  // <input type ="submit" value = "送出參數">
-  //     </form>
-  // <script>
-  //   document.forms[0].submit();
-  // </script>
-  // </body>
-  // </html>
-  // `
 })
 
 router.post('/result', async (req, res, next) => {
